@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=OMXgui
+Comment=GUI for omxplayer
+Exec=python /etc/omxguirpi/omxgui.py
+Icon=/etc/omxguirpi/images/film.png
+Terminal=false
+Type=Application
+Categories=AudioVideo
