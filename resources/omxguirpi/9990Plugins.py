@@ -9,9 +9,10 @@ active=''
 def run():
 	glob.g['context'].add_command(label="Plugins", command=contextPluginOpen)
 	
+	
 def loop():
 	a=0
-	
+
 def contextPluginOpen():
 	global descriptionTextarea,installButton,uninstallButton
 	pluginWIndow = Tkinter.Toplevel()
@@ -92,6 +93,9 @@ def installMouseUp(event):
 				testfile = urllib.URLopener()
 				print partes[1]
 				testfile.retrieve(partes[1], "/etc/omxguirpi{0}".format(partes[2]))
+			
+			if partes[0]=='mkdir':
+				os.mkdir("/etc/omxguirpi{0}".format(partes[1]))
 				
 			elif partes[0]=='end':
 				descriptionTextarea.delete("1.0",Tkinter.END)
