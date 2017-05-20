@@ -23,6 +23,7 @@ glob.g['videoDuration']=0
 glob.g['playing']=0
 glob.g['parcheDbus']=0
 glob.g['playingMaster']='0010Main'
+glob.g['pixelRepair']=55
 
 def run():
 	
@@ -96,7 +97,7 @@ def getDbus():
 			if glob.g['filetype']=='video':
 				glob.g['videoW']=glob.g['dbusProp'].ResWidth()	
 				glob.g['videoH']=glob.g['dbusProp'].ResHeight()
-			updateCall('force')
+			
 			glob.g['slVol'].set(xmlconf('vol'))
 			glob.g['dbusProp'].Position()
 			done=1
@@ -104,6 +105,7 @@ def getDbus():
 			glob.g['videoDuration']=glob.g['dbusProp'].Duration()
 			print 'dbus up {0}'.format(glob.g['videoDuration'])
 			glob.g['playing']=1
+			updateCall('force')
 		except:
 			retry+=1
 			sleep(0.2)
@@ -113,7 +115,7 @@ def getDbus():
 def loadFile(route,filetype='video'):
 	glob.g['filetype']=filetype
 	if filetype=='video':	
-		cmd = "omxplayer '{0}' --win '0 0 1 1'".format(route)
+		cmd = "omxplayer '"+route+"' --win '100 100 200 200'"
 		glob.g['btFull'].pack_forget()
 		glob.g['btFull'].pack(side=Tkinter.RIGHT)
 	else:
@@ -124,11 +126,13 @@ def loadFile(route,filetype='video'):
 	getDbus()
 
 def contextOpenFile():
-	glob.g['route']=tkFileDialog.askopenfilename(initialdir=xmlconf('lastFolder')).encode('utf-8')
+	glob.g['route']=tkFileDialog.askopenfilename(initialdir=xmlconf('lastFolder'))
 	if glob.g['route']!='' and glob.g['route']!=():
+		
 		loadFile(glob.g['route'])
 		xmlconf('lastFolder',os.path.dirname(glob.g['route']))
 		glob.g['mainWindow'].title(os.path.basename(glob.g['route']))
+
 def generalSettings():
 	more = Tkinter.Toplevel()
 	more.wm_title("Configuracion")
@@ -182,7 +186,7 @@ def updateCall(event):
 			glob.g['mainWindowY']=y
 			
 		if glob.g['onfull']==0:
-			pxcontrol=60	#space reserved for controls							
+			pxcontrol=60	#space reserved for controls	 						
 			pxslide=0
 		else:								
 			
@@ -210,8 +214,12 @@ def updateCall(event):
 				videoancho=int(glob.g['videoW']*he/glob.g['videoH'])
 				sobran=0
 				sobral=(w-videoancho)/2
-			
-			glob.g['dbusPlayer'].VideoPos(no,'{0} {1} {2} {3}'.format(x+sobral,y+sobran,x+videoancho+sobral,y+videoalto+sobran))
+			pixelRepair=glob.g['pixelRepair']
+			if glob.g['onfull']==0:
+				glob.g['dbusPlayer'].VideoPos(no,'{0} {1} {2} {3}'.format(x+sobral+pixelRepair,y+sobran+pixelRepair,x+videoancho+sobral-pixelRepair,y+videoalto+sobran-pixelRepair))
+			else:
+				glob.g['dbusPlayer'].VideoPos(no,'{0} {1} {2} {3}'.format(100,100,50,50))
+			#glob.g['dbusPlayer'].VideoPos(no,'{0} {1} {2} {3}'.format(x,y,x+w,y+h))
 			
 			
 #xml getter/setter persistent configurations
@@ -245,6 +253,7 @@ def seekUp(event):
 
 
 def loop():
+	
 	try:
 		videopos=glob.g['dbusProp'].Position()
 		glob.g['dbusState']=1
